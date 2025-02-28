@@ -101,7 +101,7 @@ def train():
 
     buffer = deque(maxlen=buffer_size)
 
-    env = Hw2Env(n_actions=N_ACTIONS, render_mode="gui")
+    env = Hw2Env(n_actions=N_ACTIONS, render_mode="offscreen")
     for episode in range(num_episodes):
         env.reset()
         state = env.state()
@@ -128,4 +128,33 @@ def train():
 
         print(f"Episode={episode}, reward={cumulative_reward}, RPS={cumulative_reward/episode_steps}")
 
-        
+    return main_network
+
+def test():
+    N_ACTIONS = 8
+
+    network = DQN(N_ACTIONS).float()
+    network.load_state_dict(torch.load("./models/model.pth"))
+    network.eval()
+    env = Hw2Env(n_actions=N_ACTIONS, render_mode="gui")
+
+    env.reset()
+    state = env.state()
+    done = False
+    cumulative_reward = 0.0
+    episode_steps = 0
+    while not done:
+        action = get_action(0.05, network, state)
+        state, reward, is_terminal, is_truncated = env.step(action)
+        print(f"State: {state.shape}, Reward: {reward.shape}")
+        done = is_terminal or is_truncated
+        cumulative_reward += reward
+        episode_steps += 1
+    print(f"Reward={cumulative_reward}, RPS={cumulative_reward/episode_steps}")
+
+
+if __name__ == "__main__":
+    main_network = train()
+    main_network.eval()
+
+    torch.save(main_network.state_dict(), "./models/model.pth")
