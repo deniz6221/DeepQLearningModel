@@ -114,7 +114,7 @@ def train():
             next_state, reward, is_terminal, is_truncated = env.step(action)
             next_state = next_state 
             done = is_terminal or is_truncated
-            buffer.append({"state": state, "action": action,"reward": reward, "next_state": next_state, "done": 0 if done else 1})
+            buffer.append({"state": state, "action": action,"reward": reward, "next_state": next_state, "done": 1 if done else 0})
 
             state = next_state    
             cumulative_reward += reward
